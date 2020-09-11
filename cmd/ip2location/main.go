@@ -3,7 +3,9 @@ package main
 import (
 	"context"
 	"github.com/adscompass/ip2location/internal/http"
-	"github.com/adscompass/ip2location/internal/ip2location"
+	"github.com/ip2location/ip2location-go"
+
+	//"github.com/adscompass/ip2location/internal/ip2location"
 	"github.com/cristalhq/aconfig"
 	"log"
 	"os"
@@ -25,19 +27,20 @@ func main() {
 		os.Exit(1)
 	}
 
-	ctx, ctxCancel := context.WithCancel(context.Background())
-	defer ctxCancel()
-
-	err := ip2location.Init(cfg.Database)
+	db, err := ip2location.OpenDB(cfg.Database)
 	if err != nil {
-		log.Printf("error init database, %v", err)
+		log.Printf("error open database, %v", err)
 		os.Exit(1)
 	}
+	defer db.Close()
+
+	ctx, ctxCancel := context.WithCancel(context.Background())
+	defer ctxCancel()
 
 	wg := &sync.WaitGroup{}
 
 	wg.Add(1)
-	http.Listen(ctx, ctxCancel, wg, cfg.HTTPListener, ip2location.Parse)
+	http.Listen(ctx, ctxCancel, wg, cfg.HTTPListener, db)
 
 	ch := make(chan os.Signal, 1)
 	signal.Notify(ch, syscall.SIGTERM)
