@@ -20,6 +20,10 @@ type config struct {
 	Verbose      bool   `default:"false" usage:"verbose mode"`
 }
 
+var (
+	version = "undefined"
+)
+
 func main() {
 	cfg := &config{}
 
@@ -28,7 +32,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	log.Printf("config %#v", cfg)
+	log.Printf("ip2location version %s, config %#v", version, cfg)
 
 	db, err := ip2location.OpenDB(cfg.Database)
 	if err != nil {
