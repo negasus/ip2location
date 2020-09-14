@@ -17,6 +17,7 @@ import (
 type config struct {
 	Database     string `default:"IP2LOCATION.BIN" usage:"database file"`
 	HTTPListener string `default:"0.0.0.0:8001" usage:"http listener"`
+	Verbose      bool   `default:"false" usage:"verbose mode"`
 }
 
 func main() {
@@ -26,6 +27,8 @@ func main() {
 		log.Printf("error load config, %v", err)
 		os.Exit(1)
 	}
+
+	log.Printf("config %#v", cfg)
 
 	db, err := ip2location.OpenDB(cfg.Database)
 	if err != nil {
@@ -40,7 +43,7 @@ func main() {
 	wg := &sync.WaitGroup{}
 
 	wg.Add(1)
-	http.Listen(ctx, ctxCancel, wg, cfg.HTTPListener, db)
+	http.Listen(ctx, ctxCancel, wg, cfg.HTTPListener, cfg.Verbose, db)
 
 	ch := make(chan os.Signal, 1)
 	signal.Notify(ch, syscall.SIGTERM)

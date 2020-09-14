@@ -11,11 +11,13 @@ import (
 )
 
 var (
-	db *ip2location.DB
+	db      *ip2location.DB
+	verbose bool
 )
 
-func Listen(ctx context.Context, ctxCancel context.CancelFunc, wg *sync.WaitGroup, address string, ip2db *ip2location.DB) {
+func Listen(ctx context.Context, ctxCancel context.CancelFunc, wg *sync.WaitGroup, address string, verboseMode bool, ip2db *ip2location.DB) {
 	db = ip2db
+	verbose = verboseMode
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", handler)
@@ -29,10 +31,11 @@ func Listen(ctx context.Context, ctxCancel context.CancelFunc, wg *sync.WaitGrou
 		log.Printf("http listener %s", address)
 		err := server.ListenAndServe()
 		if err != nil {
-			log.Printf("error listen and serve http listener, %v", err)
+			if err != http.ErrServerClosed {
+				log.Printf("error listen and serve http listener, %v", err)
+			}
 			ctxCancel()
 		}
-
 	}()
 
 	go func() {
@@ -71,7 +74,13 @@ func getIP(req *http.Request) string {
 func handler(rw http.ResponseWriter, req *http.Request) {
 	defer req.Body.Close()
 
-	rec, err := db.Get_all(getIP(req))
+	ip := getIP(req)
+
+	if verbose {
+		log.Printf("ip=%s", ip)
+	}
+
+	rec, err := db.Get_all(ip)
 	if err != nil {
 		log.Printf("error fetch data, %v", err)
 		rw.WriteHeader(400)
