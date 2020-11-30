@@ -5,7 +5,6 @@ import (
 	"github.com/adscompass/ip2location/internal/http"
 	"github.com/ip2location/ip2location-go"
 
-	//"github.com/adscompass/ip2location/internal/ip2location"
 	"github.com/cristalhq/aconfig"
 	"log"
 	"os"
