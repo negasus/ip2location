@@ -2,6 +2,12 @@
 
 Detect Geo data by IP with ip2location database file
 
+## Docker image
+
+```
+docker pull negasus/ip2location
+```
+
 ## Configurations
 
 | Env Variable | Default | Description |
@@ -43,4 +49,20 @@ type IP2Locationrecord struct {
 	Elevation          float32
 	Usagetype          string
 }
+```
+
+## Run example
+
+```
+docker run \
+    -e IP2LOCATION_DATABASE=/opt/db.bin \
+    -v /path/to/db:/opt/db.bin \
+    -p 8001:8001 \
+    negasus/ip2location
+```
+
+```
+curl 127.0.0.1:8012?ip=4.0.0.0
+
+{"Country_short":"US","Country_long":"United States of America","Region":"Texas","City":"Houston","Isp":"Level 3 Communications Inc.","Latitude":29.76328,"Longitude":-95.36327,"Domain":"level3.com","Zipcode":"77001","Timezone":"-05:00","Netspeed":"DSL","Iddcode":"1","Areacode":"281/713/832","Weatherstationcode":"USTX0617","Weatherstationname":"Houston","Mcc":"-","Mnc":"-","Mobilebrand":"-","Elevation":9,"Usagetype":"ISP"}
 ```
